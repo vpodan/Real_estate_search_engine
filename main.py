@@ -11,8 +11,8 @@ import logging
 load_dotenv()
 openai.api_key = os.environ.get("OPENAI_API_KEY")
 
-MONGO_URI = os.environ.get("MONGO_URI", "mongodb://localhost:27017/")
-MONGO_DB_NAME = os.environ.get("MONGO_DATABASE", "real_estate")
+MONGO_URI = os.environ.get("MONGODB_URI", "mongodb://localhost:27017/")
+MONGO_DB_NAME = os.environ.get("MONGODB_DB", "real_estate")
 
 mongo_client = pymongo.MongoClient(MONGO_URI)
 mongo_db     = mongo_client[MONGO_DB_NAME]
