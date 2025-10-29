@@ -1,52 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
 # Virtual environment
 venv/
 env/
 ENV/
 
-# Python cache
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-
-# Environment variables
-.env
-.env.local
-.env.production
-
-# Vector databases
-chroma_real_estate/
-chroma_real_estate_improved/
-*.sqlite3
-
-# Logs
-*.log
-
-# IDE files
+# IDE
 .vscode/
 .idea/
 *.swp
 *.swo
 
-# OS files
+# Environment variables
+.env
+
+# Database files
+chroma_real_estate/
+*.sqlite3
+*.db
+
+# Logs
+*.log
+
+# OS
 .DS_Store
 Thumbs.db
-
-# Temporary files
-*.tmp
-*.temp
-
-# MongoDB data (if local)
-data/
-
-# Scrapy cache
-.scrapy/
-
-# Node modules (if any)
-node_modules/
-
-# Build files
-build/
-dist/
-*.egg-info/

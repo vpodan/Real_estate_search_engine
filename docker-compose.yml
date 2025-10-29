@@ -1,0 +1,45 @@
+version: '3.8'
+
+services:
+  mcp-server:
+    build: .
+    container_name: real-estate-mcp-server
+    ports:
+      - "10000:10000"
+    environment:
+      - PORT=10000
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - MONGODB_URI=${MONGODB_URI:-mongodb://mongo:27017}
+      - MONGODB_DB=${MONGODB_DB:-real_estate}
+    volumes:
+      - ./chroma_real_estate:/app/chroma_real_estate
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    networks:
+      - mcp-network
+
+  mongo:
+    image: mongo:7.0
+    container_name: real-estate-mongodb
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+      - mongodb_config:/data/configdb
+    environment:
+      - MONGO_INITDB_DATABASE=real_estate
+    restart: unless-stopped
+    networks:
+      - mcp-network
+
+volumes:
+  mongodb_data:
+    driver: local
+  mongodb_config:
+    driver: local
+
+networks:
+  mcp-network:
+    driver: bridge
+

@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+
+# Virtual environment
+venv/
+env/
+ENV/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Git
+.git/
+.gitignore
+
+# Environment variables (will be set separately)
+.env
+
+# Logs
+*.log
+
+# Database files (will be volumes)
+chroma_real_estate/*.sqlite3
+chroma_real_estate/*/
+
+# Temporary files
+*.tmp
+.DS_Store
+
