@@ -30,8 +30,8 @@ logger = logging.getLogger(__name__)
 
 CHROMA_PATH = "chroma_real_estate"
 BATCH_SIZE = 50  
-MONGO_URI = "mongodb://localhost:27017/"
-DB_NAME = "real_estate"
+MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
+DB_NAME = os.getenv("MONGODB_DB", "real_estate")
 
 # Połączenie z MongoDB
 try:
