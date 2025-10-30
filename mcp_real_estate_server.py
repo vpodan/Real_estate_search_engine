@@ -8,10 +8,6 @@ from dotenv import load_dotenv
 from typing import Dict, List
 import os
 import logging
-import json
-from fastapi import FastAPI, Request
-from fastapi.responses import StreamingResponse
-import asyncio
 
 load_dotenv()
 
@@ -21,11 +17,15 @@ logger = logging.getLogger(__name__)
 from hybrid_search import hybrid_search
 from real_estate_vector_db import RealEstateVectorDB
 
+# Check required environment variables
+if "OPENAI_API_KEY" not in os.environ:
+    raise Exception("OPENAI_API_KEY environment variable not set")
+
+if "MONGODB_URI" not in os.environ:
+    logger.warning("MONGODB_URI not set, using default: mongodb://mongo:27017")
+
 # Ustawienia serwera
 PORT = os.environ.get("PORT", 10000)
-
-# Tworzymy FastAPI app для HTTP endpoints
-app = FastAPI(title="Real Estate MCP Server")
 
 # Tworzymy serwer MCP
 mcp = FastMCP("real-estate-search", host="0.0.0.0", port=PORT)
@@ -33,216 +33,85 @@ mcp = FastMCP("real-estate-search", host="0.0.0.0", port=PORT)
 # Inicjalizujemy bazę danych wektorową
 vector_db = RealEstateVectorDB()
 
+# Add search tool
 @mcp.tool()
-def search_real_estate(query: str, max_results: int = 10) -> List[Dict]:
+def search_real_estate(query: str) -> List[Dict]:
     """
-    Wyszukiwanie nieruchomości w języku naturalnym.
+    Search for real estate listings in Warsaw using natural language.
     
-    Obsługuje wyszukiwanie mieszkań, domów, pokoi do wynajęcia i sprzedaży w Polsce.
-    Używa wyszukiwania hybrydowego (MongoDB + wyszukiwanie semantyczne).
+    Supports searching for apartments, houses, rooms for rent and sale.
+    Uses hybrid search (MongoDB + semantic vector search).
     
     Args:
-        query: Zapytanie w języku naturalnym, np.: 
-               'chcę kupić 2-pokojowe mieszkanie w Warszawie do 500000 zł' 
-               lub 'szukam mieszkania do wynajęcia na Mokotowie'
-        
+        query: Natural language search query, e.g.:
+               'two bedroom apartment in Warsaw under 3000 PLN'
+               'apartment for rent in Mokotów district'
+    
     Returns:
-        Lista znalezionych ogłoszeń ze szczegółowymi informacjami
+        List of real estate listings with detailed information.
     """
     try:
-        logger.info(f"Wykonywanie wyszukiwania: {query}")
+        logger.info(f"Searching for: {query}")
         
-        # Wykonujemy wyszukiwanie hybrydowe
+        # Perform hybrid search
         search_results = hybrid_search(query)
         
-        if not search_results or search_results is None:
+        if not search_results or not search_results.get("final_results"):
             return [{
-                "error": "Nie znaleziono wyników dla Twojego zapytania",
-                "message": "Spróbuj zmienić kryteria wyszukiwania"
+                "error": "No results found",
+                "message": "Try different search criteria"
             }]
         
-        # Pobieramy końcowe wyniki z hybrid_search
-        results = search_results.get("final_results", [])
-        
-        if not results:
-            return [{
-                "error": "Nie znaleziono wyników dla Twojego zapytania",
-                "message": "Spróbuj zmienić kryteria wyszukiwania"
-            }]
-        
-        # Ograniczamy liczbę wyników
-        
-        
-        # Formatujemy wyniki dla MCP
+        # Format results for MCP
+        results = search_results["final_results"][:10]  # Limit to 10 results
         formatted_results = []
+        
         for result in results:
-            formatted_result = {
-                "title": result.get('title', 'Bez tytułu'),
-                "price": result.get('price', 'Nie podana'),
-                "room_count": result.get('room_count', 'Nie podane'),
-                "space_sm": result.get('space_sm', 'Nie podana'),
-                "city": result.get('city', 'Nie podane'),
-                "district": result.get('district', 'Nie podane'),
+            formatted_results.append({
+                "title": result.get('title', 'No title'),
+                "price": result.get('price', 'Not specified'),
+                "room_count": result.get('room_count', 'Not specified'),
+                "space_sm": result.get('space_sm', 'Not specified'),
+                "city": result.get('city', 'Not specified'),
+                "district": result.get('district', 'Not specified'),
                 "link": result.get('link', ''),
                 "score": result.get('score', 0),
-                "description": result.get('description', '')[:200] + "..." if result.get('description') else ""
-            }
-            formatted_results.append(formatted_result)
+                "description": (result.get('description', '')[:200] + "...") if result.get('description') else ""
+            })
         
         return formatted_results
         
     except Exception as e:
-        logger.error(f"Błąd podczas wyszukiwania: {e}")
-        return [{
-            "error": "Wystąpił błąd podczas wyszukiwania",
-            "message": str(e)
-        }]
+        logger.error(f"Search error: {e}", exc_info=True)
+        return [{"error": "Search failed", "message": str(e)}]
 
+# Add stats tool
 @mcp.tool()
 def get_database_stats() -> Dict:
     """
-    Pobierz statystyki bazy danych nieruchomości.
+    Get statistics about the real estate database.
     
     Returns:
-        Słownik ze statystykami bazy danych
+        Dictionary with database statistics including total listings,
+        rent listings count, and sale listings count.
     """
     try:
         stats = vector_db.get_stats()
-        
         return {
             "total_listings": stats.get('total', 0),
             "rent_listings": stats.get('rent', 0),
             "sale_listings": stats.get('sale', 0),
             "status": "success"
         }
-        
     except Exception as e:
-        logger.error(f"Błąd podczas pobierania statystyk: {e}")
+        logger.error(f"Stats error: {e}", exc_info=True)
         return {
-            "error": "Wystąpił błąd podczas pobierania statystyk",
+            "error": "Failed to get stats",
             "message": str(e),
             "status": "error"
         }
 
-# HTTP endpoints для Cursor
-@app.get("/")
-async def root():
-    return {"message": "Real Estate MCP Server", "status": "running"}
-
-@app.get("/sse")
-async def sse_endpoint():
-    """SSE endpoint для Cursor MCP"""
-    async def event_generator():
-        # Отправляем heartbeat
-        yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': '2025-01-01T00:00:00Z'})}\n\n"
-        
-        # Ждем запросы
-        while True:
-            await asyncio.sleep(30)  # Heartbeat каждые 30 секунд
-            yield f"data: {json.dumps({'type': 'heartbeat', 'timestamp': '2025-01-01T00:00:00Z'})}\n\n"
-    
-    return StreamingResponse(
-        event_generator(),
-        media_type="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "Connection": "keep-alive",
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "*",
-        }
-    )
-
-@app.post("/messages")
-async def handle_mcp_message(request: Request):
-    """Обработка MCP сообщений (безопасная для ошибок парсинга JSON)."""
-    try:
-        # Прочитаем сырой запрос для логов и стабильного парсинга
-        raw_bytes = await request.body()
-        try:
-            body = await request.json()
-        except Exception as parse_err:
-            logger.error(
-                f"Invalid JSON in /messages: {parse_err}; raw={raw_bytes!r}"
-            )
-            return {
-                "jsonrpc": "2.0",
-                "id": None,
-                "error": {"code": -32700, "message": "Parse error"},
-            }
-
-        method = body.get("method")
-
-        if method == "tools/list":
-            return {
-                "jsonrpc": "2.0",
-                "id": body.get("id"),
-                "result": {
-                    "tools": [
-                        {
-                            "name": "search_real_estate",
-                            "description": "Wyszukiwanie nieruchomości w języku naturalnym",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "query": {
-                                        "type": "string",
-                                        "description": "Zapytanie w języku naturalnym",
-                                    }
-                                },
-                                "required": ["query"],
-                            },
-                        },
-                        {
-                            "name": "get_database_stats",
-                            "description": "Pobierz statystyki bazy danych",
-                            "parameters": {"type": "object", "properties": {}},
-                        },
-                    ]
-                },
-            }
-
-        elif method == "tool/call":
-            tool_name = body.get("params", {}).get("toolName")
-            tool_args = body.get("params", {}).get("args", {})
-
-            if tool_name == "search_real_estate":
-                result = search_real_estate(**tool_args)
-            elif tool_name == "get_database_stats":
-                result = get_database_stats()
-            else:
-                result = {"error": f"Unknown tool: {tool_name}"}
-
-            return {
-                "jsonrpc": "2.0",
-                "id": body.get("id"),
-                "result": {"output": result},
-            }
-
-        else:
-            return {
-                "jsonrpc": "2.0",
-                "id": body.get("id"),
-                "error": {"code": -32601, "message": f"Method not found: {method}"},
-            }
-
-    except Exception as e:
-        logger.error(f"Error handling MCP message: {e}", exc_info=True)
-        # Аккуратно пытаемся вернуть id, если тело всё же было распознано ранее
-        safe_id = None
-        try:
-            safe_id = body.get("id")  # type: ignore[name-defined]
-        except Exception:
-            pass
-        return {
-            "jsonrpc": "2.0",
-            "id": safe_id,
-            "error": {"code": -32603, "message": str(e)},
-        }
-
-# Uruchamiamy serwer
+# Run the server
 if __name__ == "__main__":
-    import uvicorn
-    logger.info(f"Uruchamianie serwera MCP do wyszukiwania nieruchomości na porcie {PORT}")
-    
-    # Запускаем FastAPI сервер
-    uvicorn.run(app, host="0.0.0.0", port=PORT)
+    logger.info(f"Starting Real Estate MCP Server on port {PORT}")
+    mcp.run(transport="streamable-http")
