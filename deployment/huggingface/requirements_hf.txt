@@ -1,0 +1,35 @@
+# Requirements для Hugging Face Spaces
+# Полный функционал: MongoDB Atlas + ChromaDB + Semantic Search
+
+# Gradio (основной фреймворк)
+gradio==4.44.0
+huggingface-hub==0.26.5
+
+# Обработка данных
+pandas
+numpy
+
+# База данных MongoDB Atlas с SSL поддержкой
+pymongo[srv]>=4.6.0
+certifi>=2023.0.0
+dnspython>=2.4.0
+
+# OpenAI
+openai>=1.0.0
+
+# LangChain
+langchain
+langchain-core
+langchain-openai
+langchain-community
+langchain-chroma
+langchain-text-splitters
+
+# Векторная БД
+chromadb>=0.4.0
+sentence-transformers
+
+# Утилиты
+python-dotenv
+requests
+

@@ -2,7 +2,12 @@
 import os
 import sys
 from typing import Optional
-from real_estate_vector_db import RealEstateVectorDB
+
+# Добавить корень проекта в путь для импортов
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
+
+from src.real_estate_vector_db import RealEstateVectorDB
 
 
 def main():

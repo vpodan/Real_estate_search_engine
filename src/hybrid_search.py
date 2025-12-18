@@ -1,7 +1,4 @@
-import sys
-import os
 import logging
-sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
 logging.getLogger("openai").setLevel(logging.WARNING)
 logging.getLogger("httpx").setLevel(logging.WARNING)
@@ -12,8 +9,8 @@ logging.getLogger("chromadb").setLevel(logging.WARNING)
 logging.getLogger("chromadb.telemetry").setLevel(logging.WARNING)
 logging.getLogger("chromadb.config").setLevel(logging.WARNING)
 
-from main import extract_criteria_from_prompt, search_listings
-from real_estate_vector_db import RealEstateVectorDB
+from src.main import extract_criteria_from_prompt, search_listings
+from src.real_estate_vector_db import RealEstateVectorDB
 
 def hybrid_search(query: str):
     

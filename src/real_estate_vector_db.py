@@ -9,7 +9,7 @@ from langchain_core.documents import Document
 from langchain_chroma import Chroma
 from pymongo import MongoClient
 
-from real_estate_embedding_function import (
+from src.real_estate_embedding_function import (
     get_embedding_function,
     create_listing_text_for_embedding,
     create_listing_chunks_for_embedding,
@@ -33,7 +33,11 @@ BATCH_SIZE = 50
 MONGO_URI = os.getenv("MONGODB_URI", "mongodb://localhost:27017/")
 DB_NAME = os.getenv("MONGODB_DB", "real_estate")
 
-# Połączenie z MongoDB
+# Połączenie z MongoDB (опционально)
+db = None
+collection_rent = None
+collection_sale = None
+
 try:
     client = MongoClient(MONGO_URI, serverSelectionTimeoutMS=5000)
     client.server_info()  
@@ -43,7 +47,7 @@ try:
     logger.info("Połączenie z MongoDB udane")
 except Exception as e:
     logger.error(f"Błąd połączenia z MongoDB: {e}")
-    raise
+    logger.info("MongoDB недоступна - работаем только с ChromaDB")
 
 
 class RealEstateVectorDB:
@@ -379,7 +383,7 @@ class RealEstateVectorDB:
        
         try:
             if optimize_query:
-                from real_estate_embedding_function import create_query_optimized_text
+                from src.real_estate_embedding_function import create_query_optimized_text
                 optimized = create_query_optimized_text(query, expand_synonyms=True)
                 logger.info(f"Semantyczne wyszukiwanie w podzbiorze: '{query}'")
                 if optimized != query:

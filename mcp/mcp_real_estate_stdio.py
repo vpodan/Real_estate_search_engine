@@ -12,8 +12,8 @@ load_dotenv()
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-from hybrid_search import hybrid_search
-from real_estate_vector_db import RealEstateVectorDB
+from src.hybrid_search import hybrid_search
+from src.real_estate_vector_db import RealEstateVectorDB
 
 # Создаём MCP сервер
 server = Server("real-estate-search")

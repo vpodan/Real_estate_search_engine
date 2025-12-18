@@ -24,6 +24,18 @@ chroma_real_estate/
 *.sqlite3
 *.db
 
+# Data files (large)
+*.tar.gz
+rent_listings.json
+sale_listings.json
+data/rent_listings.json
+data/sale_listings.json
+data/mongo_backup/
+mongo_dump/
+
+# Duplicates
+hf_space_files/
+
 # Logs
 *.log
 

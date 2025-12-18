@@ -464,7 +464,7 @@ class MongoDBPipeline:
 # Pająk Scrapy do zbierania ofert wynajmu mieszkań
 class RentSpider(scrapy.Spider):
     name = 'RentSpider'
-    start_urls = [f'https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa?limit=36&by=DEFAULT&direction=DESC&page={i}' for i in range(1, 20)]
+    start_urls = [f'https://www.otodom.pl/pl/wyniki/wynajem/mieszkanie/mazowieckie/warszawa/warszawa/warszawa?limit=36&by=DEFAULT&direction=DESC&page={i}' for i in range(50, 100)]
 
     custom_settings = {
         'LOG_LEVEL': 'INFO',
@@ -601,7 +601,7 @@ def _extract_description_from_next_json(data):
 # Pająk Scrapy do zbierania ofert sprzedaży mieszkań
 class SaleSpider(scrapy.Spider):
     name = 'SaleSpider'
-    start_urls = [f'https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa?ownerTypeSingleSelect=ALL&by=DEFAULT&direction=DESC&page={i}' for i in range(1, 40)]
+    start_urls = [f'https://www.otodom.pl/pl/wyniki/sprzedaz/mieszkanie/mazowieckie/warszawa/warszawa/warszawa?ownerTypeSingleSelect=ALL&by=DEFAULT&direction=DESC&page={i}' for i in range(50, 100)]
 
     custom_settings = {
         'LOG_LEVEL': 'INFO',

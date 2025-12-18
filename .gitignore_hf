@@ -1,0 +1,93 @@
+# Gitignore для Hugging Face Spaces
+# Переименуйте в .gitignore перед загрузкой
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+ENV/
+env/
+.venv
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints
+
+# Environment variables (НЕ загружайте .env файлы!)
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+logs/
+
+# Database (локальные БД не загружать)
+*.db
+*.sqlite
+*.sqlite3
+
+# MongoDB dumps (НЕ загружать, только JSON экспорты)
+mongo_dump/
+mongo_backup/
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# OS specific
+Thumbs.db
+desktop.ini
+
+# Gradio cache
+gradio_cached_examples/
+
+# Large files (используйте Git LFS)
+# Раскомментируйте если НЕ используете Git LFS:
+# *.tar.gz
+# *.zip
+# *.json (если файлы очень большие)
+
+# Local ChromaDB (если создается на сервере)
+# chroma_real_estate/
+
+# Backup files
+*.bak
+*.backup
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Documentation builds
+docs/_build/
+

@@ -1,85 +1,100 @@
-# Real Estate Search System
+# 🏠 Real Estate Search System with AI
 
-AI-powered real estate search system with MongoDB and vector database integration.
+AI-powered real estate search system with hybrid MongoDB + ChromaDB semantic search and MCP (Model Context Protocol) integration.
 
-## Features
+## ✨ Features
 
-- **Web Scraping**: Collects real estate listings from Otodom.pl using Scrapy
-- **MongoDB Storage**: Stores scraped data in MongoDB database
-- **Vector Database**: Chroma vector database for semantic search
-- **Hybrid Search**: Combines MongoDB filtering with semantic search
-- **OpenAI Integration**: Uses OpenAI embeddings for semantic search
-- **Multi-language Support**: Polish interface with natural language queries
+- **Hybrid Search**: MongoDB filtering + semantic vector search with ChromaDB
+- **NLP Query Processing**: OpenAI Function Calling for criteria extraction
+- **Multi-source Data**: Web scraping from Otodom.pl
+- **MCP Integration**: Compatible with Claude Desktop and other LLM tools
+- **Scalable Architecture**: Docker + FastAPI + MongoDB + ChromaDB
 
-## Architecture
+## 🏗️ Architecture
 
 ```
-Otodom.pl → Scrapy → MongoDB → Vector DB (Chroma) → Semantic Search
+User Query → OpenAI (Criteria Extraction) → MongoDB (Hard Filters)
+                                              ↓
+                                        ChromaDB (Semantic Ranking)
+                                              ↓
+                                         Top Results
 ```
 
-## Installation
+## 🚀 Quick Start
 
-1. Clone the repository:
+### 1. Clone and Setup
+
 ```bash
-git clone https://github.com/yourusername/real-estate-search-bot.git
-cd real-estate-search-bot
-```
+git clone https://github.com/YOUR_USERNAME/real-estate-search-mcp.git
+cd real-estate-search-mcp
 
-2. Create virtual environment:
-```bash
+# Create virtual environment
 python -m venv venv
-venv\Scripts\activate  # Windows
-# or
 source venv/bin/activate  # Linux/Mac
-```
+# or
+venv\Scripts\activate  # Windows
 
-3. Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-4. Set up environment variables:
+### 2. Configure Environment
+
 ```bash
-# Create .env file with your API keys
-OPENAI_API_KEY=your_openai_api_key_here
+cp .env.example .env
+# Edit .env and add your OPENAI_API_KEY
 ```
 
-## Usage
+### 3. Run with Docker
 
-### 1. Scrape Data
 ```bash
-python scarpy.py
+docker-compose up -d
 ```
 
-### 2. Populate Vector Database
-```bash
-python real_estate_vector_db.py --populate --stats
+### 4. Access
+
+- **MCP Server**: http://localhost:10000
+- **Health Check**: http://localhost:10000/health
+
+## 📁 Project Structure
+
+```
+├── src/              # Core business logic
+├── mcp/              # MCP servers for LLM integration
+├── integrations/     # WhatsApp, Gradio UI
+├── scripts/          # Utility scripts
+├── deployment/       # Docker, deployment configs
+└── data/            # Data files (gitignored)
 ```
 
-### 3. Run Hybrid Search
-```bash
-python hybrid_search.py
-```
+## 🛠️ Tech Stack
 
-### 4. Test Semantic Search
-```bash
-python demo_system.py
-```
+- **Backend**: Python, FastAPI
+- **Databases**: MongoDB, ChromaDB (vector DB)
+- **AI/ML**: OpenAI GPT-4, LangChain, Sentence Transformers
+- **Scraping**: Scrapy
+- **DevOps**: Docker, Docker Compose
 
-## Files Description
+## 📖 Documentation
 
-- `scarpy.py` - Web scraping spiders for Otodom.pl
-- `main.py` - MongoDB search and natural language processing
-- `hybrid_search.py` - Hybrid search implementation
-- `real_estate_vector_db.py` - Vector database management
-- `real_estate_embedding_function.py` - Embedding functions and text processing
-- `app.py` - Flask web application for WhatsApp integration
+- [Deployment Guide](deployment/README.md)
+- [MCP Integration](mcp/README.md)
+- [API Documentation](docs/API.md)
 
-## Requirements
+## 🤝 Contributing
 
-- Python 3.8+
-- MongoDB
-- OpenAI API key
-- Required Python packages (see requirements.txt)
+Pull requests are welcome! For major changes, please open an issue first.
 
+## 📄 License
+
+MIT
+
+## 👤 Author
+
+**Your Name**
+- GitHub: [@YOUR_USERNAME](https://github.com/YOUR_USERNAME)
+
+---
+
+⭐ If you find this project useful, please give it a star!
 

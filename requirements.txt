@@ -24,3 +24,7 @@ chromadb
 sentence-transformers
 mcp
 fastmcp
+gradio
+
+
+
